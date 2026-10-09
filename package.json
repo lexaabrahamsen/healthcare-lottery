@@ -1,0 +1,19 @@
+{
+  "name": "healthcare-lottery-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Calculation engine for Healthcare Lottery: US health costs vs. the same income elsewhere, with every number traceable to a source.",
+  "type": "module",
+  "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "example": "tsx scripts/example.ts",
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web run build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
