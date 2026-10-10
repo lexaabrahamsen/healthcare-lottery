@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { COUNTRIES, SCENARIOS, compareAll, exampleEmployerPlan, summarize } from '@engine'
 import type { CountryId, Household, ScenarioId } from '@engine'
 import { CountryCard } from '@/components/CountryCard'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Headline } from '@/components/Headline'
+import { ShareButton } from '@/components/ShareButton'
 import { RangeChart } from '@/components/RangeChart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,16 +14,28 @@ import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { usd } from '@/lib/format'
+import { DEFAULTS, MAX_CHILDREN, MAX_INCOME, parseState, serializeState } from '@/lib/urlState'
 
-const DEFAULT = { income: 75_000, adults: 2 as 1 | 2, children: 2 }
+const ALLOWED = {
+  countries: Object.keys(COUNTRIES).filter((id) => id !== 'US'),
+  scenarios: Object.keys(SCENARIOS),
+}
 
 export default function App() {
-  const [income, setIncome] = useState(DEFAULT.income)
-  const [adults, setAdults] = useState<1 | 2>(DEFAULT.adults)
-  const [children, setChildren] = useState(DEFAULT.children)
-  const [scenario, setScenario] = useState<ScenarioId>('baby')
-  const [other, setOther] = useState<CountryId>('DE')
-  const [view, setView] = useState<'you' | 'full'>('you')
+  // The link carries the household and choices, so start from whatever the URL says.
+  const [initial] = useState(() => parseState(window.location.search, ALLOWED))
+  const [income, setIncome] = useState(initial.income)
+  const [adults, setAdults] = useState<1 | 2>(initial.adults)
+  const [children, setChildren] = useState(initial.children)
+  const [scenario, setScenario] = useState(initial.scenario as ScenarioId)
+  const [other, setOther] = useState(initial.vs as CountryId)
+  const [view, setView] = useState<'you' | 'full'>(initial.view)
+
+  // Keep the address bar in sync, so copying the URL always shares what's on screen.
+  useEffect(() => {
+    const query = serializeState({ income, adults, children, vs: other, scenario, view })
+    window.history.replaceState(null, '', window.location.pathname + query)
+  }, [income, adults, children, other, scenario, view])
 
   // All three scenarios at once: the chart shows the spread, the cards below show one.
   const all = useMemo(() => {
@@ -35,7 +48,7 @@ export default function App() {
   const otherName = COUNTRIES[other].name
   const showEmployer = view === 'full'
   const summary = useMemo(() => summarize(all, showEmployer), [all, showEmployer])
-  const isExample = income === DEFAULT.income && adults === DEFAULT.adults && children === DEFAULT.children
+  const isExample = income === DEFAULTS.income && adults === DEFAULTS.adults && children === DEFAULTS.children
   const diff = (showEmployer ? US.fullTotalUSD - OTHER.fullTotalUSD : US.visibleTotalUSD - OTHER.visibleTotalUSD)
 
   return (
@@ -64,8 +77,13 @@ export default function App() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Make it yours</CardTitle>
-          <CardDescription>Change the household to match yours. Everything above updates.</CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <CardTitle>Make it yours</CardTitle>
+              <CardDescription>Change the household to match yours. Everything above updates, and so does the link.</CardDescription>
+            </div>
+            <ShareButton />
+          </div>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="space-y-3 md:col-span-2">
@@ -77,7 +95,7 @@ export default function App() {
                 inputMode="numeric"
                 className="w-36 text-right tabular-nums"
                 value={income.toLocaleString('en-US')}
-                onChange={(e) => setIncome(Math.min(10_000_000, Number(e.target.value.replace(/\D/g, '')) || 0))}
+                onChange={(e) => setIncome(Math.min(MAX_INCOME, Number(e.target.value.replace(/\D/g, '')) || 0))}
               />
             </div>
             <Slider min={0} max={300_000} step={1000} value={[Math.min(income, 300_000)]} onValueChange={([v]) => setIncome(v ?? 0)} />
@@ -97,10 +115,10 @@ export default function App() {
               id="children"
               type="number"
               min={0}
-              max={10}
+              max={MAX_CHILDREN}
               className="w-24"
               value={children}
-              onChange={(e) => setChildren(Math.min(10, Math.max(0, Math.floor(Number(e.target.value) || 0))))}
+              onChange={(e) => setChildren(Math.min(MAX_CHILDREN, Math.max(0, Math.floor(Number(e.target.value) || 0))))}
             />
           </div>
         </CardContent>
