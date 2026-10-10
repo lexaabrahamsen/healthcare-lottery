@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
-import { COUNTRIES, SCENARIOS, compare, exampleEmployerPlan } from '@engine'
+import { COUNTRIES, SCENARIOS, compareAll, exampleEmployerPlan, summarize } from '@engine'
 import type { CountryId, Household, ScenarioId } from '@engine'
 import { CountryCard } from '@/components/CountryCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Headline } from '@/components/Headline'
 import { RangeChart } from '@/components/RangeChart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,10 +14,12 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { usd } from '@/lib/format'
 
+const DEFAULT = { income: 75_000, adults: 2 as 1 | 2, children: 2 }
+
 export default function App() {
-  const [income, setIncome] = useState(75_000)
-  const [adults, setAdults] = useState<1 | 2>(2)
-  const [children, setChildren] = useState(2)
+  const [income, setIncome] = useState(DEFAULT.income)
+  const [adults, setAdults] = useState<1 | 2>(DEFAULT.adults)
+  const [children, setChildren] = useState(DEFAULT.children)
   const [scenario, setScenario] = useState<ScenarioId>('baby')
   const [other, setOther] = useState<CountryId>('DE')
   const [view, setView] = useState<'you' | 'full'>('you')
@@ -24,19 +27,15 @@ export default function App() {
   // All three scenarios at once: the chart shows the spread, the cards below show one.
   const all = useMemo(() => {
     const household: Household = { adults, children }
-    const profile = { state: 'PA', annualIncomeUSD: income, household, coverage: exampleEmployerPlan(household) }
-    return {
-      healthy: compare(profile, 'healthy').results,
-      baby: compare(profile, 'baby').results,
-      serious: compare(profile, 'serious').results,
-    }
+    return compareAll({ state: 'PA', annualIncomeUSD: income, household, coverage: exampleEmployerPlan(household) })
   }, [income, adults, children])
-  const result = { results: all[scenario] }
 
-  const US = result.results.US
-  const OTHER = result.results[other]
+  const US = all[scenario].US
+  const OTHER = all[scenario][other]
   const otherName = COUNTRIES[other].name
   const showEmployer = view === 'full'
+  const summary = useMemo(() => summarize(all, showEmployer), [all, showEmployer])
+  const isExample = income === DEFAULT.income && adults === DEFAULT.adults && children === DEFAULT.children
   const diff = (showEmployer ? US.fullTotalUSD - OTHER.fullTotalUSD : US.visibleTotalUSD - OTHER.visibleTotalUSD)
 
   return (
@@ -51,9 +50,22 @@ export default function App() {
         <ThemeToggle />
       </header>
 
+
+      <Headline summary={summary} household={{ adults, children }} income={income} isExample={isExample} />
+
+      <div className="flex justify-end">
+        <ToggleGroup type="single" variant="outline" value={view} onValueChange={(v) => v && setView(v as 'you' | 'full')}>
+          <ToggleGroupItem value="you">What you pay</ToggleGroupItem>
+          <ToggleGroupItem value="full">Incl. employer share</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      <RangeChart results={all} showEmployer={showEmployer} selected={other} onSelect={setOther} />
+
       <Card>
         <CardHeader>
-          <CardTitle>Your household</CardTitle>
+          <CardTitle>Make it yours</CardTitle>
+          <CardDescription>Change the household to match yours. Everything above updates.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="space-y-3 md:col-span-2">
@@ -61,12 +73,11 @@ export default function App() {
               <Label htmlFor="income">Annual income (one earner)</Label>
               <Input
                 id="income"
-                type="number"
-                min={0}
-                step={1000}
+                type="text"
+                inputMode="numeric"
                 className="w-36 text-right tabular-nums"
-                value={income}
-                onChange={(e) => setIncome(Math.max(0, Number(e.target.value) || 0))}
+                value={income.toLocaleString('en-US')}
+                onChange={(e) => setIncome(Math.min(10_000_000, Number(e.target.value.replace(/\D/g, '')) || 0))}
               />
             </div>
             <Slider min={0} max={300_000} step={1000} value={[Math.min(income, 300_000)]} onValueChange={([v]) => setIncome(v ?? 0)} />
@@ -94,15 +105,6 @@ export default function App() {
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex justify-end">
-        <ToggleGroup type="single" variant="outline" value={view} onValueChange={(v) => v && setView(v as 'you' | 'full')}>
-          <ToggleGroupItem value="you">What you pay</ToggleGroupItem>
-          <ToggleGroupItem value="full">Incl. employer share</ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      <RangeChart results={all} showEmployer={showEmployer} selected={other} onSelect={setOther} />
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">Compare in detail</h2>
