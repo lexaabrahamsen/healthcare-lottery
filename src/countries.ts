@@ -11,6 +11,8 @@ export interface CountryModel {
   name: string;
   /** How the system is funded, in a few words, for labels in the UI. */
   system: string;
+  /** True when the cost is an estimate of tax paid toward health care, not a premium or fee. */
+  estimatesFromTaxes?: boolean;
   compute: (profile: UserProfile, scenario: Scenario) => CostBreakdown;
 }
 
@@ -18,8 +20,8 @@ export interface CountryModel {
 export const COUNTRIES: Record<CountryId, CountryModel> = {
   US: { id: "US", name: "United States", system: "Employer insurance", compute: computeUS },
   DE: { id: "DE", name: "Germany", system: "Payroll-funded insurance", compute: computeDE },
-  UK: { id: "UK", name: "United Kingdom", system: "Tax-funded (NHS)", compute: computeUK },
+  UK: { id: "UK", name: "United Kingdom", system: "Tax-funded (NHS)", estimatesFromTaxes: true, compute: computeUK },
   CH: { id: "CH", name: "Switzerland", system: "Mandatory private insurance", compute: computeCH },
-  CA: { id: "CA", name: "Canada", system: "Tax-funded (provincial)", compute: computeCA },
+  CA: { id: "CA", name: "Canada", system: "Tax-funded (provincial)", estimatesFromTaxes: true, compute: computeCA },
   NL: { id: "NL", name: "Netherlands", system: "Regulated private insurance", compute: computeNL },
 };

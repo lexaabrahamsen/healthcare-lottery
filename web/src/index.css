@@ -128,3 +128,16 @@
     @apply font-sans;
     }
 }
+/* Chart colors. Validated with the dataviz palette checker against the card surface in each mode. */
+.viz {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #c3c2b7;
+}
+.dark .viz {
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #383835;
+}

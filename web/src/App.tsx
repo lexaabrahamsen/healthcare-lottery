@@ -4,7 +4,7 @@ import type { CountryId, Household, ScenarioId } from '@engine'
 import { CountryCard } from '@/components/CountryCard'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
-import { Ranking } from '@/components/Ranking'
+import { RangeChart } from '@/components/RangeChart'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -21,13 +21,17 @@ export default function App() {
   const [other, setOther] = useState<CountryId>('DE')
   const [view, setView] = useState<'you' | 'full'>('you')
 
-  const result = useMemo(() => {
+  // All three scenarios at once: the chart shows the spread, the cards below show one.
+  const all = useMemo(() => {
     const household: Household = { adults, children }
-    return compare(
-      { state: 'PA', annualIncomeUSD: income, household, coverage: exampleEmployerPlan(household) },
-      scenario,
-    )
-  }, [income, adults, children, scenario])
+    const profile = { state: 'PA', annualIncomeUSD: income, household, coverage: exampleEmployerPlan(household) }
+    return {
+      healthy: compare(profile, 'healthy').results,
+      baby: compare(profile, 'baby').results,
+      serious: compare(profile, 'serious').results,
+    }
+  }, [income, adults, children])
+  const result = { results: all[scenario] }
 
   const US = result.results.US
   const OTHER = result.results[other]
@@ -91,52 +95,57 @@ export default function App() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Tabs value={scenario} onValueChange={(v) => setScenario(v as ScenarioId)}>
-          <TabsList>
-            {Object.values(SCENARIOS).map((s) => (
-              <TabsTrigger key={s.id} value={s.id}>{s.label}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+      <div className="flex justify-end">
         <ToggleGroup type="single" variant="outline" value={view} onValueChange={(v) => v && setView(v as 'you' | 'full')}>
           <ToggleGroupItem value="you">What you pay</ToggleGroupItem>
           <ToggleGroupItem value="full">Incl. employer share</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
-      <p className="text-lg">
-        {diff > 0 ? (
-          <>The US costs this household <strong>{usd(diff)} more</strong> than {otherName}.</>
-        ) : diff < 0 ? (
-          <>{otherName} costs this household <strong>{usd(-diff)} more</strong> than the US.</>
-        ) : (
-          <>The two countries cost the same.</>
-        )}
-      </p>
+      <RangeChart results={all} showEmployer={showEmployer} selected={other} onSelect={setOther} />
 
-      <Ranking results={result.results} showEmployer={showEmployer} selected={other} onSelect={setOther} />
-
-      <div className="flex items-center gap-3">
-        <Label htmlFor="other">Compare the US with</Label>
-        <Select value={other} onValueChange={(v) => setOther(v as CountryId)}>
-          <SelectTrigger id="other" className="w-56">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(COUNTRIES)
-              .filter((c) => c.id !== 'US')
-              .map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold tracking-tight">Compare in detail</h2>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Label htmlFor="other">US vs.</Label>
+            <Select value={other} onValueChange={(v) => setOther(v as CountryId)}>
+              <SelectTrigger id="other" className="w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.values(COUNTRIES)
+                  .filter((c) => c.id !== 'US')
+                  .map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Tabs value={scenario} onValueChange={(v) => setScenario(v as ScenarioId)}>
+            <TabsList>
+              {Object.values(SCENARIOS).map((s) => (
+                <TabsTrigger key={s.id} value={s.id}>{s.label}</TabsTrigger>
               ))}
-          </SelectContent>
-        </Select>
-      </div>
+            </TabsList>
+          </Tabs>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <CountryCard result={US} showEmployer={showEmployer} />
-        <CountryCard result={OTHER} showEmployer={showEmployer} />
-      </div>
+        <p className="text-lg">
+          {diff > 0 ? (
+            <>In {SCENARIOS[scenario].label.toLowerCase()}, the US costs this household <strong>{usd(diff)} more</strong> than {otherName}.</>
+          ) : diff < 0 ? (
+            <>In {SCENARIOS[scenario].label.toLowerCase()}, {otherName} costs this household <strong>{usd(-diff)} more</strong> than the US.</>
+          ) : (
+            <>The two countries cost the same.</>
+          )}
+        </p>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <CountryCard result={US} showEmployer={showEmployer} />
+          <CountryCard result={OTHER} showEmployer={showEmployer} />
+        </div>
+      </section>
     </main>
   )
 }
