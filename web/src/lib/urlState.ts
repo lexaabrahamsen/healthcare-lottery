@@ -19,7 +19,7 @@ export interface Allowed {
   scenarios: readonly string[]
 }
 
-export const DEFAULTS: ShareState = { income: 75_000, adults: 2, children: 2, vs: 'DE', scenario: 'baby', view: 'you' }
+export const DEFAULTS: ShareState = { income: 87_000, adults: 2, children: 2, vs: 'DE', scenario: 'baby', view: 'you' }
 
 export const MAX_INCOME = 10_000_000
 export const MAX_CHILDREN = 10

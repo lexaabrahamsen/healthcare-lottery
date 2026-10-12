@@ -2,19 +2,29 @@ import type { CostBreakdown } from '@engine'
 import { COUNTRIES, getSource } from '@engine'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
+import { Chip } from '@/components/Chip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { usd } from '@/lib/format'
 
 export function CountryCard({ result, showEmployer }: { result: CostBreakdown; showEmployer: boolean }) {
+  const country = COUNTRIES[result.countryId]
   const total = showEmployer ? result.fullTotalUSD : result.visibleTotalUSD
   const items = showEmployer ? result.items : result.items.filter((i) => i.paidBy === 'you')
 
   return (
     <Card>
       <CardHeader>
-        <CardDescription>{COUNTRIES[result.countryId].name} · {COUNTRIES[result.countryId].system}</CardDescription>
-        <CardTitle className="text-4xl tabular-nums">{usd(total)}</CardTitle>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-serif text-xl font-semibold">{country.name}</h3>
+          <Chip tone={country.model}>{country.system}</Chip>
+          {country.estimatesFromTaxes && (
+            <Chip tone="outline" title="No premiums here, so this is an estimate of the share of your taxes that pays for health care">
+              Estimate
+            </Chip>
+          )}
+        </div>
+        <CardTitle className="font-serif text-4xl font-semibold tabular-nums">{usd(total)}</CardTitle>
         <CardDescription>{showEmployer ? 'total cost, including employer share' : 'what you pay this year'}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -23,7 +33,10 @@ export function CountryCard({ result, showEmployer }: { result: CostBreakdown; s
             <AccordionItem key={item.id} value={item.id}>
               <AccordionTrigger>
                 <span className="flex flex-1 items-center justify-between gap-2 pr-2">
-                  <span>{item.label}</span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    {item.label}
+                    {item.paidBy === 'employer' && <Chip tone="outline">Employer pays</Chip>}
+                  </span>
                   <span className="tabular-nums">{usd(item.amountUSD)}</span>
                 </span>
               </AccordionTrigger>

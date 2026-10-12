@@ -13,7 +13,7 @@ export { caFederalTax, caOntarioTax } from "./models/ca.ts";
 export { COUNTRIES } from "./countries.ts";
 export { compareAll, summarize } from "./insights.ts";
 export type { AllResults, Summary } from "./insights.ts";
-export type { CountryModel } from "./countries.ts";
+export type { CountryModel, FundingModel } from "./countries.ts";
 
 export function compare(profile: UserProfile, scenarioId: ScenarioId): ComparisonResult {
   validate(profile);

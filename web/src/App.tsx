@@ -2,19 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { COUNTRIES, SCENARIOS, compareAll, exampleEmployerPlan, summarize } from '@engine'
 import type { CountryId, Household, ScenarioId } from '@engine'
 import { CountryCard } from '@/components/CountryCard'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { Headline } from '@/components/Headline'
-import { ShareButton } from '@/components/ShareButton'
+import { HouseholdBar } from '@/components/HouseholdBar'
 import { RangeChart } from '@/components/RangeChart'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { usd } from '@/lib/format'
-import { DEFAULTS, MAX_CHILDREN, MAX_INCOME, parseState, serializeState } from '@/lib/urlState'
+import { DEFAULTS, parseState, serializeState } from '@/lib/urlState'
 
 const ALLOWED = {
   countries: Object.keys(COUNTRIES).filter((id) => id !== 'US'),
@@ -43,6 +40,7 @@ export default function App() {
     return compareAll({ state: 'PA', annualIncomeUSD: income, household, coverage: exampleEmployerPlan(household) })
   }, [income, adults, children])
 
+  const plan = useMemo(() => exampleEmployerPlan({ adults, children }), [adults, children])
   const US = all[scenario].US
   const OTHER = all[scenario][other]
   const otherName = COUNTRIES[other].name
@@ -54,9 +52,9 @@ export default function App() {
   return (
     <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
       <header className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight">Healthcare Lottery</h1>
-          <p className="text-muted-foreground">
+        <div className="space-y-2">
+          <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">Healthcare Lottery</h1>
+          <p className="max-w-xl text-muted-foreground">
             What a household pays for health care in the US, versus five other countries at the same income.
           </p>
         </div>
@@ -64,7 +62,16 @@ export default function App() {
       </header>
 
 
-      <Headline summary={summary} household={{ adults, children }} income={income} isExample={isExample} />
+      <Headline summary={summary} all={all} plan={plan} household={{ adults, children }} income={income} isExample={isExample} />
+
+      <HouseholdBar
+        income={income}
+        adults={adults}
+        children={children}
+        onIncome={setIncome}
+        onAdults={setAdults}
+        onChildren={setChildren}
+      />
 
       <div className="flex justify-end">
         <ToggleGroup type="single" variant="outline" value={view} onValueChange={(v) => v && setView(v as 'you' | 'full')}>
@@ -75,57 +82,9 @@ export default function App() {
 
       <RangeChart results={all} showEmployer={showEmployer} selected={other} onSelect={setOther} />
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1.5">
-              <CardTitle>Make it yours</CardTitle>
-              <CardDescription>Change the household to match yours. Everything above updates, and so does the link.</CardDescription>
-            </div>
-            <ShareButton />
-          </div>
-        </CardHeader>
-        <CardContent className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-3 md:col-span-2">
-            <div className="flex items-center justify-between gap-4">
-              <Label htmlFor="income">Annual income (one earner)</Label>
-              <Input
-                id="income"
-                type="text"
-                inputMode="numeric"
-                className="w-36 text-right tabular-nums"
-                value={income.toLocaleString('en-US')}
-                onChange={(e) => setIncome(Math.min(MAX_INCOME, Number(e.target.value.replace(/\D/g, '')) || 0))}
-              />
-            </div>
-            <Slider min={0} max={300_000} step={1000} value={[Math.min(income, 300_000)]} onValueChange={([v]) => setIncome(v ?? 0)} />
-          </div>
 
-          <div className="space-y-2">
-            <Label>Adults</Label>
-            <ToggleGroup type="single" variant="outline" value={String(adults)} onValueChange={(v) => v && setAdults(Number(v) as 1 | 2)}>
-              <ToggleGroupItem value="1">1</ToggleGroupItem>
-              <ToggleGroupItem value="2">2</ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="children">Children</Label>
-            <Input
-              id="children"
-              type="number"
-              min={0}
-              max={MAX_CHILDREN}
-              className="w-24"
-              value={children}
-              onChange={(e) => setChildren(Math.min(MAX_CHILDREN, Math.max(0, Math.floor(Number(e.target.value) || 0))))}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">Compare in detail</h2>
+      <section id="compare" className="scroll-mt-6 space-y-4">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight">Compare in detail</h2>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Label htmlFor="other">US vs.</Label>
