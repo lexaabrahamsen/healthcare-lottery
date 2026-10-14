@@ -17,7 +17,7 @@ export function Chip({ tone = 'neutral', className, ...props }: React.ComponentP
   return (
     <span
       className={cn(
-        'inline-flex w-fit items-center whitespace-nowrap rounded-sm px-2 py-0.5 font-display text-xs font-bold uppercase tracking-wide',
+        'inline-flex w-fit items-center whitespace-nowrap rounded-full px-2.5 py-0.5 font-display text-xs font-bold',
         TONES[tone],
         className,
       )}

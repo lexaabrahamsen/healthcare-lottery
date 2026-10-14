@@ -1,4 +1,5 @@
 import type { AllResults, ScenarioId } from '@engine'
+import type { CountryId } from '@engine'
 import { COUNTRIES } from '@engine'
 import { chartAxis, chartRows, tickLabel, totalFor } from '@/lib/chartData'
 import { usd } from '@/lib/format'
@@ -13,17 +14,19 @@ interface Props {
   /** The scenario whose care costs are added on top of coverage. Null shows coverage alone. */
   scenario: ScenarioId | null
   caption: string
+  /** The comparison country: its row is highlighted along with the US. */
+  highlight?: CountryId
 }
 
 /** Each country's bill as two parts: the price of being covered, then what you pay when you use care. */
-export function StoryChart({ all, showEmployer, scenario, caption }: Props) {
+export function StoryChart({ all, showEmployer, scenario, caption, highlight }: Props) {
   const rows = chartRows(all, showEmployer)
   const { pct, ticks } = chartAxis(rows)
 
   return (
-    <figure className="viz bg-card p-4 ring-1 ring-foreground/50" aria-label={caption}>
+    <figure className="viz" aria-label={caption}>
       <figcaption className="space-y-2">
-        <p className="font-display text-sm font-bold uppercase tracking-wider">{caption}</p>
+        <p className="font-display text-sm font-bold">{caption}</p>
         <ul className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground" aria-label="Legend">
           <li className="flex items-center gap-1.5">
             <span className="size-2.5" style={{ background: 'var(--series-1)' }} />
@@ -57,11 +60,11 @@ export function StoryChart({ all, showEmployer, scenario, caption }: Props) {
               key={row.id}
               role="group"
               aria-label={`${country.name}: coverage ${usd(row.coverage)}${scenario ? `, care ${usd(care)}` : ''}, total ${usd(total)}`}
-              className={cn('col-span-2 grid grid-cols-subgrid items-center', row.id === 'US' && 'bg-muted')}
+              className={cn('col-span-2 grid grid-cols-subgrid items-center rounded-lg', (row.id === 'US' || row.id === highlight) && 'bg-muted')}
               style={{ height: `${ROW}rem` }}
             >
               <span className="min-w-0 pl-2">
-                <span className={cn('block truncate text-sm', row.id === 'US' && 'font-bold')}>{country.name}</span>
+                <span className={cn('block truncate text-sm', (row.id === 'US' || row.id === highlight) && 'font-semibold')}>{country.name}</span>
                 <span className="block truncate text-xs text-muted-foreground">
                   {country.estimatesFromTaxes ? 'Estimated from taxes' : country.system}
                 </span>
@@ -70,10 +73,10 @@ export function StoryChart({ all, showEmployer, scenario, caption }: Props) {
               <span className="relative block h-6">
                 <span
                   className="absolute inset-y-0 left-0 motion-safe:transition-[width] motion-safe:duration-500"
-                  style={{ width: `${pct(row.coverage)}%`, background: 'var(--series-1)' }}
+                  style={{ width: `${pct(row.coverage)}%`, background: 'var(--series-1)', borderRadius: care > 0 ? 0 : '0 4px 4px 0' }}
                 />
                 <span
-                  className="absolute inset-y-0 motion-safe:transition-[width] motion-safe:duration-500"
+                  className="absolute inset-y-0 rounded-r-[4px] motion-safe:transition-[width] motion-safe:duration-500"
                   style={{
                     left: `calc(${pct(row.coverage)}% + ${GAP}px)`,
                     width: care > 0 ? `max(calc(${pct(care)}% - ${GAP}px), 3px)` : '0px',

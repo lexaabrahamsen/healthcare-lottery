@@ -133,62 +133,16 @@
     }
 }
 
-/* A paper-and-ink "form" look: warm paper, navy ink, square corners, hairline rules. */
-:root {
-  --radius: 0.125rem;
-  --background: #f2efe6;
-  --foreground: #12233f;
-  --card: #fffdf8;
-  --card-foreground: #12233f;
-  --popover: #fffdf8;
-  --popover-foreground: #12233f;
-  --primary: #14305b;
-  --primary-foreground: #fffdf8;
-  --secondary: #e8e4d8;
-  --secondary-foreground: #12233f;
-  --muted: #ebe7db;
-  --muted-foreground: #4a5568;
-  --accent: #e3e8f2;
-  --accent-foreground: #12233f;
-  --border: #b8b29f;
-  --input: #8f8977;
-  --ring: #1f5aa6;
-}
-.dark {
-  --background: #0a1424;
-  --foreground: #e9edf5;
-  --card: #101e36;
-  --card-foreground: #e9edf5;
-  --popover: #101e36;
-  --popover-foreground: #e9edf5;
-  --primary: #9bbbe8;
-  --primary-foreground: #0a1424;
-  --secondary: #16284a;
-  --secondary-foreground: #e9edf5;
-  --muted: #16284a;
-  --muted-foreground: #a3afc4;
-  --accent: #1b3055;
-  --accent-foreground: #e9edf5;
-  --border: #2a3c5e;
-  --input: #3a4f78;
-  --ring: #4a8fe0;
-}
-
-/* Cards read as printed boxes: a firm outline, no soft shadow. */
-[data-slot="card"] {
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--foreground) 50%, transparent);
-}
-
 /* Chart colors. Validated with the dataviz palette checker against the card surface in each mode. */
 .viz {
-  --series-1: #1f5aa6;
-  --series-2: #c2410c;
-  --viz-grid: #d9d4c4;
-  --viz-axis: #8f8977;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #c3c2b7;
 }
 .dark .viz {
-  --series-1: #4a8fe0;
-  --series-2: #e0662c;
-  --viz-grid: #22345a;
-  --viz-axis: #3a4f78;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #383835;
 }

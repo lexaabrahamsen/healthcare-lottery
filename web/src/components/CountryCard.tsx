@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { usd } from '@/lib/format'
 
-export function CountryCard({ result, showEmployer }: { result: CostBreakdown; showEmployer: boolean }) {
+export function CountryCard({ result, showEmployer, share }: { result: CostBreakdown; showEmployer: boolean; share?: number }) {
   const country = COUNTRIES[result.countryId]
   const total = showEmployer ? result.fullTotalUSD : result.visibleTotalUSD
   const items = showEmployer ? result.items : result.items.filter((i) => i.paidBy === 'you')
@@ -26,6 +26,14 @@ export function CountryCard({ result, showEmployer }: { result: CostBreakdown; s
         </div>
         <CardTitle className="font-display text-4xl font-semibold tabular-nums">{usd(total)}</CardTitle>
         <CardDescription>{showEmployer ? 'total cost, including employer share' : 'what you pay this year'}</CardDescription>
+        {share !== undefined && (
+          <div className="mt-2 h-2 rounded-full bg-muted" aria-hidden>
+            <div
+              className="h-full rounded-full bg-foreground/70 motion-safe:transition-[width] motion-safe:duration-500"
+              style={{ width: `${Math.max(share, 0.02) * 100}%` }}
+            />
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         <Accordion type="multiple">
