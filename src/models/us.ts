@@ -40,6 +40,7 @@ export function computeUS(profile: UserProfile, scenario: Scenario): CostBreakdo
   const items: LineItem[] = [
     {
       id: "us-premium-employee",
+      kind: "coverage",
       label: "Your share of the premium",
       amountUSD: plan.employeePremium,
       paidBy: "you",
@@ -50,6 +51,7 @@ export function computeUS(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "us-oop",
+      kind: "care",
       label: "Deductible and coinsurance",
       amountUSD: cs.total,
       paidBy: "you",
@@ -71,6 +73,7 @@ export function computeUS(profile: UserProfile, scenario: Scenario): CostBreakdo
   if (plan.employerPremium !== undefined) {
     items.push({
       id: "us-premium-employer",
+      kind: "coverage",
       label: "Your employer's share of the premium",
       amountUSD: plan.employerPremium,
       paidBy: "employer",

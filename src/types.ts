@@ -40,8 +40,16 @@ export interface Derivation {
 
 export type Payer = "you" | "employer";
 
+/**
+ * "coverage" is what it costs to be covered, whether or not you use care (premiums, contributions,
+ * your share of taxes). "care" is what you pay when you use it (deductibles, copays, prescriptions).
+ */
+export type LineKind = "coverage" | "care";
+
 export interface LineItem {
   id: string;
+  /** Splits the bill into the price of being covered and the cost of using care. */
+  kind: LineKind;
   label: string;
   /** Always USD, so countries are directly comparable. */
   amountUSD: number;

@@ -49,6 +49,7 @@ export function computeUK(profile: UserProfile, scenario: Scenario): CostBreakdo
   const lineItems: LineItem[] = [
     {
       id: "uk-tax-share",
+      kind: "coverage",
       label: "Your income tax and NI that fund the NHS",
       amountUSD: toUSD((incomeTax + ni) * share),
       paidBy: "you",
@@ -66,6 +67,7 @@ export function computeUK(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "uk-prescriptions",
+      kind: "care",
       label: "Prescription charges",
       amountUSD: toUSD(rx),
       paidBy: "you",
@@ -81,6 +83,7 @@ export function computeUK(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "uk-tax-share-employer",
+      kind: "coverage",
       label: "Your employer's NI that funds the NHS",
       amountUSD: toUSD(ukEmployerNI(incomeGBP) * share),
       paidBy: "employer",

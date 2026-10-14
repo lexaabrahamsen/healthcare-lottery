@@ -57,6 +57,7 @@ export function computeDE(profile: UserProfile, scenario: Scenario): CostBreakdo
   const items: LineItem[] = [
     {
       id: "de-contribution-employee",
+      kind: "coverage",
       label: "Your health insurance contribution",
       amountUSD: toUSD(c.employeeEUR),
       paidBy: "you",
@@ -67,6 +68,7 @@ export function computeDE(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "de-copays",
+      kind: "care",
       label: "Copays",
       amountUSD: toUSD(copays),
       paidBy: "you",
@@ -87,6 +89,7 @@ export function computeDE(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "de-contribution-employer",
+      kind: "coverage",
       label: "Your employer's contribution",
       amountUSD: toUSD(c.employerEUR),
       paidBy: "employer",

@@ -1,4 +1,4 @@
-import type { ComparisonResult, CountryId, ScenarioId, UserProfile } from "./types.ts";
+import type { ComparisonResult, CostBreakdown, CountryId, ScenarioId, UserProfile } from "./types.ts";
 import { COUNTRIES } from "./countries.ts";
 import { SCENARIOS } from "./data/scenarios.ts";
 import { compare } from "./index.ts";
@@ -40,4 +40,20 @@ export function summarize(all: AllResults, showEmployer: boolean): Summary {
     cheaperThanUS: { healthy: cheaper("healthy"), baby: cheaper("baby"), serious: cheaper("serious") },
     otherCount: others.length,
   };
+}
+
+export interface CostSplit {
+  /** The price of being covered: premiums, contributions, your share of taxes. */
+  coverageUSD: number;
+  /** What you pay when you use care: deductibles, copays, prescriptions. */
+  careUSD: number;
+}
+
+/** Splits one country's bill into coverage and care, for what you pay or (with employer shares) the full cost. */
+export function splitCosts(result: CostBreakdown, showEmployer: boolean): CostSplit {
+  const sum = (kind: "coverage" | "care") =>
+    result.items
+      .filter((i) => i.kind === kind && (showEmployer || i.paidBy === "you"))
+      .reduce((a, i) => a + i.amountUSD, 0);
+  return { coverageUSD: sum("coverage"), careUSD: sum("care") };
 }

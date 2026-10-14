@@ -11,8 +11,8 @@ export { gkvContribution, copayCapEUR } from "./models/de.ts";
 export { ukIncomeTax, ukEmployeeNI, ukEmployerNI } from "./models/uk.ts";
 export { caFederalTax, caOntarioTax } from "./models/ca.ts";
 export { COUNTRIES } from "./countries.ts";
-export { compareAll, summarize } from "./insights.ts";
-export type { AllResults, Summary } from "./insights.ts";
+export { compareAll, splitCosts, summarize } from "./insights.ts";
+export type { AllResults, CostSplit, Summary } from "./insights.ts";
 export type { CountryModel, FundingModel } from "./countries.ts";
 
 export function compare(profile: UserProfile, scenarioId: ScenarioId): ComparisonResult {

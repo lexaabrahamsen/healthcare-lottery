@@ -23,6 +23,7 @@ export function computeCH(profile: UserProfile, scenario: Scenario): CostBreakdo
   const items: LineItem[] = [
     {
       id: "ch-premium-adults",
+      kind: "coverage",
       label: adults === 1 ? "Your health insurance premium" : "Your and your partner's premiums",
       amountUSD: toUSD(adults * adultPremium),
       paidBy: "you",
@@ -39,6 +40,7 @@ export function computeCH(profile: UserProfile, scenario: Scenario): CostBreakdo
   if (children > 0) {
     items.push({
       id: "ch-premium-children",
+      kind: "coverage",
       label: "Your children's premiums",
       amountUSD: toUSD(children * childPremium),
       paidBy: "you",
@@ -55,6 +57,7 @@ export function computeCH(profile: UserProfile, scenario: Scenario): CostBreakdo
   items.push(
     {
       id: "ch-cost-sharing",
+      kind: "care",
       label: "Deductible and coinsurance",
       amountUSD: toUSD(cs.total),
       paidBy: "you",
@@ -71,6 +74,7 @@ export function computeCH(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "ch-hospital",
+      kind: "care",
       label: "Hospital daily contribution",
       amountUSD: toUSD(hospital),
       paidBy: "you",

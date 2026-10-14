@@ -18,6 +18,7 @@ export function computeNL(profile: UserProfile, scenario: Scenario): CostBreakdo
   const items: LineItem[] = [
     {
       id: "nl-premium",
+      kind: "coverage",
       label: adults === 1 ? "Your health insurance premium" : "Your and your partner's premiums",
       amountUSD: toUSD(adults * Z.nominalPremium.value),
       paidBy: "you",
@@ -32,6 +33,7 @@ export function computeNL(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "nl-deductible",
+      kind: "care",
       label: "Mandatory deductible (eigen risico)",
       amountUSD: toUSD(deductible),
       paidBy: "you",
@@ -46,6 +48,7 @@ export function computeNL(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "nl-kraamzorg",
+      kind: "care",
       label: "Maternity home care contribution",
       amountUSD: toUSD(kraamzorg),
       paidBy: "you",
@@ -60,6 +63,7 @@ export function computeNL(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "nl-employer-levy",
+      kind: "coverage",
       label: "Your employer's health insurance levy",
       amountUSD: toUSD(employerLevy),
       paidBy: "employer",

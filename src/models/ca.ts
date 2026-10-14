@@ -45,6 +45,7 @@ export function computeCA(profile: UserProfile, scenario: Scenario): CostBreakdo
   const items: LineItem[] = [
     {
       id: "ca-ontario-premium",
+      kind: "coverage",
       label: "Ontario Health Premium",
       amountUSD: toUSD(premium),
       paidBy: "you",
@@ -55,6 +56,7 @@ export function computeCA(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "ca-ontario-tax-share",
+      kind: "coverage",
       label: "Your Ontario income tax that funds health care",
       amountUSD: toUSD(ontario * CA_PROVINCIAL_HEALTH_SHARE.value),
       paidBy: "you",
@@ -71,6 +73,7 @@ export function computeCA(profile: UserProfile, scenario: Scenario): CostBreakdo
     },
     {
       id: "ca-federal-tax-share",
+      kind: "coverage",
       label: "Your federal income tax that funds health care",
       amountUSD: toUSD(federal * CA_FEDERAL_HEALTH_SHARE.value),
       paidBy: "you",

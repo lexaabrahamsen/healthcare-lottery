@@ -16,7 +16,7 @@ export function CountryCard({ result, showEmployer }: { result: CostBreakdown; s
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-serif text-xl font-semibold">{country.name}</h3>
+          <h3 className="font-display text-xl font-semibold">{country.name}</h3>
           <Chip tone={country.model}>{country.system}</Chip>
           {country.estimatesFromTaxes && (
             <Chip tone="outline" title="No premiums here, so this is an estimate of the share of your taxes that pays for health care">
@@ -24,7 +24,7 @@ export function CountryCard({ result, showEmployer }: { result: CostBreakdown; s
             </Chip>
           )}
         </div>
-        <CardTitle className="font-serif text-4xl font-semibold tabular-nums">{usd(total)}</CardTitle>
+        <CardTitle className="font-display text-4xl font-semibold tabular-nums">{usd(total)}</CardTitle>
         <CardDescription>{showEmployer ? 'total cost, including employer share' : 'what you pay this year'}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
