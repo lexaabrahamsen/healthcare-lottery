@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { COUNTRIES, SCENARIOS, compareAll, exampleEmployerPlan, splitCosts, summarize } from '@engine'
+import { COUNTRIES, SCENARIOS, compareAll, exampleEmployerPlan } from '@engine'
 import type { CountryId, Household, ScenarioId } from '@engine'
-import { Arithmetic } from '@/components/Arithmetic'
 import { Chip } from '@/components/Chip'
 import { CountryCard } from '@/components/CountryCard'
-import { Dumbbell } from '@/components/Dumbbell'
 import { GovBanner } from '@/components/GovBanner'
 import { HouseholdBar } from '@/components/HouseholdBar'
 import { PartLabel } from '@/components/PartLabel'
-import { Story } from '@/components/Story'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { YearExplorer } from '@/components/YearExplorer'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -50,22 +48,12 @@ export default function App() {
   )
 
   const showEmployer = view === 'full'
-  const summary = useMemo(() => summarize(all, showEmployer), [all, showEmployer])
   const isExample = income === DEFAULTS.income && adults === DEFAULTS.adults && children === DEFAULTS.children
 
-  const usTotal = (s: ScenarioId) => {
-    const c = splitCosts(all[s].US, showEmployer)
-    return c.coverageUSD + c.careUSD
-  }
   const US = all[scenario].US
   const OTHER = all[scenario][other]
   const otherName = COUNTRIES[other].name
   const diff = showEmployer ? US.fullTotalUSD - OTHER.fullTotalUSD : US.visibleTotalUSD - OTHER.visibleTotalUSD
-
-  const gap =
-    Math.round(summary.otherSpreadMinUSD) === Math.round(summary.otherSpreadMaxUSD)
-      ? usd(summary.otherSpreadMinUSD)
-      : `${usd(summary.otherSpreadMinUSD)} to ${usd(summary.otherSpreadMaxUSD)}`
 
   return (
     <>
@@ -76,7 +64,7 @@ export default function App() {
             <p className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Statement of annual health care costs · 2026 data
             </p>
-            <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">Healthcare Lottery</h1>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Healthcare Lottery</h1>
             <p className="max-w-2xl text-lg leading-relaxed">
               Every family pays for health care. The lottery is what happens next. Here is one household's year in the US and
               five other countries: what it pays to be covered, and what a healthy year, a baby or a serious illness adds.
@@ -112,37 +100,12 @@ export default function App() {
         </section>
 
         <section className="space-y-6">
-          <PartLabel part={2}>One year, line by line</PartLabel>
-          <Story all={all} plan={plan} household={household} showEmployer={showEmployer} />
-        </section>
-
-        <section className="space-y-5">
-          <PartLabel part={3}>The whole lottery</PartLabel>
-          <div className="max-w-3xl space-y-2">
-            <p className="text-xl leading-snug">
-              In the US this household pays between <strong>{usd(usTotal('healthy'))}</strong> and{' '}
-              <strong>{usd(usTotal('serious'))}</strong> depending on the year: a gap of{' '}
-              <strong className="font-display">{usd(summary.usSpreadUSD)}</strong>. In the other {summary.otherCount} countries
-              the gap is {gap}.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Cheaper than the US for this household: {summary.cheaperThanUS.healthy} of {summary.otherCount} countries in a
-              healthy year, and {summary.cheaperThanUS.serious} of {summary.otherCount} in a serious illness.
-            </p>
-          </div>
-          <div className="grid items-start gap-6 lg:grid-cols-[1.5fr_1fr]">
-            <Dumbbell all={all} showEmployer={showEmployer} />
-            <Arithmetic all={all} plan={plan} />
-          </div>
-          <p className="max-w-3xl text-xs text-muted-foreground">
-            The UK and Canada have no premiums, so their figures estimate the share of your taxes that pays for health care.
-            The other countries' figures leave out the taxes that fund their public programs. Read high-income results with
-            that in mind.
-          </p>
+          <PartLabel part={2}>How the year can go</PartLabel>
+          <YearExplorer all={all} plan={plan} household={household} showEmployer={showEmployer} />
         </section>
 
         <section id="compare" className="scroll-mt-6 space-y-4">
-          <PartLabel part={4}>Compare in detail</PartLabel>
+          <PartLabel part={3}>Compare in detail</PartLabel>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Label htmlFor="other">US vs.</Label>

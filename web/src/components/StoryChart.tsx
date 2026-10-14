@@ -101,6 +101,31 @@ export function StoryChart({ all, showEmployer, scenario, caption }: Props) {
           ))}
         </div>
       </div>
+      <details className="mt-4 text-sm">
+        <summary className="cursor-pointer text-muted-foreground hover:text-foreground">View the numbers as a table</summary>
+        <table className="mt-2 w-full text-left text-xs">
+          <thead className="text-muted-foreground">
+            <tr>
+              <th className="py-1 font-normal">Country</th>
+              <th className="py-1 text-right font-normal">Coverage</th>
+              <th className="py-1 text-right font-normal">Care, healthy</th>
+              <th className="py-1 text-right font-normal">Care, baby</th>
+              <th className="py-1 text-right font-normal">Care, serious illness</th>
+            </tr>
+          </thead>
+          <tbody className="tabular-nums">
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t">
+                <td className="py-1">{COUNTRIES[r.id].name}</td>
+                <td className="py-1 text-right">{usd(r.coverage)}</td>
+                <td className="py-1 text-right">{usd(r.care.healthy)}</td>
+                <td className="py-1 text-right">{usd(r.care.baby)}</td>
+                <td className="py-1 text-right">{usd(r.care.serious)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
     </figure>
   )
 }
