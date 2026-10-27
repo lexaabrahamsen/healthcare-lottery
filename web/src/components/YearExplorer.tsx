@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { AllResults, EmployerPlan, Household, CountryId } from '@engine'
 import { COUNTRIES } from '@engine'
+import { Flag } from '@/components/Flag'
 import { StoryChart } from '@/components/StoryChart'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -92,7 +93,11 @@ export function YearExplorer({ all, plan, household, showEmployer, highlight }: 
           <ul className="grid gap-3 sm:grid-cols-2">
             {step.callouts.map((c) => (
               <li key={c.country + c.text} className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">
-                <strong className="font-display text-foreground">{COUNTRIES[c.country].name}.</strong> {c.text}
+                <strong className="inline-flex items-center gap-1.5 font-display text-foreground">
+                  <Flag country={c.country} className="h-3" />
+                  {COUNTRIES[c.country].name}.
+                </strong>{' '}
+                {c.text}
               </li>
             ))}
           </ul>

@@ -1,5 +1,6 @@
 import type { AllResults, CountryId, CostBreakdown, ScenarioId } from '@engine'
 import { COUNTRIES, SCENARIOS } from '@engine'
+import { Flag } from '@/components/Flag'
 import { CountryCard } from '@/components/CountryCard'
 import { usd } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -17,7 +18,7 @@ const OTHERS = (Object.keys(COUNTRIES) as CountryId[]).filter((id) => id !== 'US
 
 const pill = (active: boolean) =>
   cn(
-    'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+    'flex items-center gap-2 rounded-full py-2 pr-4 pl-3 text-sm font-medium transition-colors',
     active ? 'bg-white text-neutral-900' : 'bg-white/10 text-neutral-200 hover:bg-white/20',
   )
 
@@ -36,8 +37,16 @@ export function Versus({ all, scenario, onScenario, other, onOther, showEmployer
       <div className="space-y-6 overflow-hidden rounded-3xl bg-neutral-900 p-6 text-neutral-50 ring-1 ring-foreground/10 sm:p-10 dark:bg-neutral-800">
         <div className="space-y-2">
           <p className="font-display text-sm font-bold text-neutral-400">Compare in detail</p>
-          <h2 className="text-4xl font-bold tracking-tight sm:text-6xl">
-            U.S. <span className="font-light italic text-neutral-400">vs.</span> {name}
+          <h2 className="flex flex-wrap items-center gap-x-4 gap-y-2 text-4xl font-bold tracking-tight sm:text-6xl">
+            <span className="flex items-center gap-3 sm:gap-4">
+              <Flag country="US" className="h-7 ring-white/25 sm:h-12" />
+              U.S.
+            </span>
+            <span className="font-light italic text-neutral-400">vs.</span>
+            <span className="flex items-center gap-3 sm:gap-4">
+              <Flag country={other} className="h-7 ring-white/25 sm:h-12" />
+              {name}
+            </span>
           </h2>
         </div>
 
@@ -45,6 +54,7 @@ export function Versus({ all, scenario, onScenario, other, onOther, showEmployer
           <div className="flex flex-wrap gap-2" role="group" aria-label="Country to compare with the US">
             {OTHERS.map((id) => (
               <button key={id} type="button" aria-pressed={id === other} onClick={() => onOther(id)} className={pill(id === other)}>
+                <Flag country={id} className="h-3.5 ring-white/25" />
                 {COUNTRIES[id].name}
               </button>
             ))}
@@ -70,12 +80,9 @@ export function Versus({ all, scenario, onScenario, other, onOther, showEmployer
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+      <div className="grid gap-4 md:grid-cols-2">
         <CountryCard result={US} showEmployer={showEmployer} share={total(US) / max} />
-        <div className="hidden items-center md:flex">
-          <span className="grid size-12 place-items-center rounded-full bg-foreground font-display text-sm font-bold text-background">VS</span>
-        </div>
-        <CountryCard result={OTHER} showEmployer={showEmployer} share={total(OTHER) / max} />
+        <CountryCard result={OTHER} showEmployer={showEmployer} share={total(OTHER) / max} versus />
       </div>
     </section>
   )

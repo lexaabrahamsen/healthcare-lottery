@@ -3,11 +3,23 @@ import { COUNTRIES, getSource } from '@engine'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Chip } from '@/components/Chip'
+import { Flag } from '@/components/Flag'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { usd } from '@/lib/format'
 
-export function CountryCard({ result, showEmployer, share }: { result: CostBreakdown; showEmployer: boolean; share?: number }) {
+export function CountryCard({
+  result,
+  showEmployer,
+  share,
+  versus,
+}: {
+  result: CostBreakdown
+  showEmployer: boolean
+  share?: number
+  /** Marks this as the challenger in a head-to-head, with a "vs." before its name. */
+  versus?: boolean
+}) {
   const country = COUNTRIES[result.countryId]
   const total = showEmployer ? result.fullTotalUSD : result.visibleTotalUSD
   const items = showEmployer ? result.items : result.items.filter((i) => i.paidBy === 'you')
@@ -16,7 +28,11 @@ export function CountryCard({ result, showEmployer, share }: { result: CostBreak
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-display text-xl font-semibold">{country.name}</h3>
+          <h3 className="flex items-center gap-2 font-display text-xl font-semibold">
+            {versus && <span className="font-sans text-lg font-light italic text-muted-foreground">vs.</span>}
+            <Flag country={result.countryId} className="h-5" />
+            {country.name}
+          </h3>
           <Chip tone={country.model}>{country.system}</Chip>
           {country.estimatesFromTaxes && (
             <Chip tone="outline" title="No premiums here, so this is an estimate of the share of your taxes that pays for health care">

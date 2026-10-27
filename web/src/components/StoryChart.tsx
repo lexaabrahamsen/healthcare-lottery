@@ -1,6 +1,7 @@
 import type { AllResults, ScenarioId } from '@engine'
 import type { CountryId } from '@engine'
 import { COUNTRIES } from '@engine'
+import { Flag } from '@/components/Flag'
 import { chartAxis, chartRows, tickLabel, totalFor } from '@/lib/chartData'
 import { usd } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -63,10 +64,13 @@ export function StoryChart({ all, showEmployer, scenario, caption, highlight }: 
               className={cn('col-span-2 grid grid-cols-subgrid items-center rounded-lg', (row.id === 'US' || row.id === highlight) && 'bg-muted')}
               style={{ height: `${ROW}rem` }}
             >
-              <span className="min-w-0 pl-2">
-                <span className={cn('block truncate text-sm', (row.id === 'US' || row.id === highlight) && 'font-semibold')}>{country.name}</span>
-                <span className="block truncate text-xs text-muted-foreground">
-                  {country.estimatesFromTaxes ? 'Estimated from taxes' : country.system}
+              <span className="flex min-w-0 items-center gap-2 pl-2">
+                <Flag country={row.id} className="h-4" />
+                <span className="min-w-0">
+                  <span className={cn('block truncate text-sm', (row.id === 'US' || row.id === highlight) && 'font-semibold')}>{country.name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {country.estimatesFromTaxes ? 'Estimated from taxes' : country.system}
+                  </span>
                 </span>
               </span>
 
