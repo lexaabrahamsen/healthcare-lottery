@@ -40,7 +40,7 @@ export function StoryChart({ all, showEmployer, scenario, caption, highlight }: 
         </ul>
       </figcaption>
 
-      <div className="mt-3 grid grid-cols-[7.5rem_1fr] gap-x-3 sm:grid-cols-[13rem_1fr]">
+      <div className="mt-3 grid grid-cols-[9.5rem_1fr] gap-x-3 sm:grid-cols-[13rem_1fr]">
         <div />
         <div className="relative h-0">
           {ticks.map((t) => (
@@ -68,7 +68,7 @@ export function StoryChart({ all, showEmployer, scenario, caption, highlight }: 
                 <Flag country={row.id} className="h-4" />
                 <span className="min-w-0">
                   <span className={cn('block truncate text-sm', (row.id === 'US' || row.id === highlight) && 'font-semibold')}>{country.name}</span>
-                  <span className="block truncate text-xs text-muted-foreground">
+                  <span className="hidden truncate text-xs text-muted-foreground sm:block">
                     {country.estimatesFromTaxes ? 'Estimated from taxes' : country.system}
                   </span>
                 </span>
