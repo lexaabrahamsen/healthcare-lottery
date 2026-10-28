@@ -1,13 +1,14 @@
 import type { AllResults, ScenarioId } from '@engine'
 import type { CountryId } from '@engine'
 import { COUNTRIES } from '@engine'
+import { FlashValue } from '@/components/FlashValue'
 import { Flag } from '@/components/Flag'
 import { chartAxis, chartRows, tickLabel, totalFor } from '@/lib/chartData'
 import { usd } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const GAP = 2 // px of surface color between the two segments
-const ROW = 3 // rem per row
+const ROW = 2.5 // rem per row
 
 interface Props {
   all: AllResults
@@ -17,10 +18,12 @@ interface Props {
   caption: string
   /** The comparison country: its row is highlighted along with the US. */
   highlight?: CountryId
+  /** Changes when the household inputs change, so figures that moved can flash. */
+  inputsKey?: string
 }
 
 /** Each country's bill as two parts: the price of being covered, then what you pay when you use care. */
-export function StoryChart({ all, showEmployer, scenario, caption, highlight }: Props) {
+export function StoryChart({ all, showEmployer, scenario, caption, highlight, inputsKey = '' }: Props) {
   const rows = chartRows(all, showEmployer)
   const { pct, ticks } = chartAxis(rows)
 
@@ -74,7 +77,7 @@ export function StoryChart({ all, showEmployer, scenario, caption, highlight }: 
                 </span>
               </span>
 
-              <span className="relative block h-6">
+              <span className="relative block h-5">
                 <span
                   className="absolute inset-y-0 left-0 motion-safe:transition-[width] motion-safe:duration-500"
                   style={{ width: `${pct(row.coverage)}%`, background: 'var(--series-1)', borderRadius: care > 0 ? 0 : '0 4px 4px 0' }}
@@ -91,7 +94,9 @@ export function StoryChart({ all, showEmployer, scenario, caption, highlight }: 
                   className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pl-2 text-sm tabular-nums motion-safe:transition-[left] motion-safe:duration-500"
                   style={{ left: `${pct(total)}%` }}
                 >
-                  <span className="font-display font-bold">{usd(total)}</span>
+                  <FlashValue value={total} inputsKey={inputsKey} className="font-display font-bold">
+                    {usd(total)}
+                  </FlashValue>
                   {care > 0 && <span className="hidden text-xs text-muted-foreground sm:inline"> {usd(care)} care</span>}
                 </span>
               </span>

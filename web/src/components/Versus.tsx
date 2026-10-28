@@ -12,6 +12,8 @@ interface Props {
   other: CountryId
   onOther: (c: CountryId) => void
   showEmployer: boolean
+  /** The household behind the numbers, echoed in the banner. */
+  householdLabel: string
 }
 
 const OTHERS = (Object.keys(COUNTRIES) as CountryId[]).filter((id) => id !== 'US')
@@ -23,7 +25,7 @@ const pill = (active: boolean) =>
   )
 
 /** The head-to-head: a bold banner with the picker, then the two bills side by side. */
-export function Versus({ all, scenario, onScenario, other, onOther, showEmployer }: Props) {
+export function Versus({ all, scenario, onScenario, other, onOther, showEmployer, householdLabel }: Props) {
   const total = (r: CostBreakdown) => (showEmployer ? r.fullTotalUSD : r.visibleTotalUSD)
   const US = all[scenario].US
   const OTHER = all[scenario][other]
@@ -36,7 +38,7 @@ export function Versus({ all, scenario, onScenario, other, onOther, showEmployer
     <section id="compare" className="scroll-mt-6 space-y-5">
       <div className="space-y-6 overflow-hidden rounded-3xl bg-neutral-900 p-6 text-neutral-50 ring-1 ring-foreground/10 sm:p-10 dark:bg-neutral-800">
         <div className="space-y-2">
-          <p className="font-display text-sm font-bold text-neutral-400">Compare in detail</p>
+          <p className="font-display text-sm font-bold text-neutral-400">Compare in detail · {householdLabel}</p>
           <h2 className="flex flex-wrap items-center gap-x-4 gap-y-2 text-4xl font-bold tracking-tight sm:text-6xl">
             <span className="flex items-center gap-3 sm:gap-4">
               <Flag country="US" className="h-7 ring-white/25 sm:h-12" />

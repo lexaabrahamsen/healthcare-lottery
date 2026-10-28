@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Tabs as TabsPrimitive } from 'radix-ui'
 import type { AllResults, CountryId, EmployerPlan, Household } from '@engine'
 import { COUNTRIES } from '@engine'
+import { FlashValue } from '@/components/FlashValue'
 import { Flag } from '@/components/Flag'
 import { StoryChart } from '@/components/StoryChart'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,10 @@ interface Props {
   showEmployer: boolean
   /** The comparison country, highlighted in the chart next to the US. */
   highlight: CountryId
+  /** What is being shown, in words: "A family of 4 earning $87,000 a year". Echoed in the header. */
+  householdLabel: string
+  /** Changes whenever an input changes, so figures can flash to show the change flowing through. */
+  inputsKey: string
 }
 
 /** Full label on wide screens, a short one on narrow screens where four tabs share the width. */
@@ -37,7 +42,7 @@ const CAPTIONS: Record<StepId, string> = {
  * A tab bar attached to one panel: the selected tab shares the panel's background and covers its top edge, so the
  * pair reads as a folder tab. Built on Radix Tabs for arrow-key navigation and tab roles.
  */
-export function YearExplorer({ all, plan, household, showEmployer, highlight }: Props) {
+export function YearExplorer({ all, plan, household, showEmployer, highlight, householdLabel, inputsKey }: Props) {
   const steps = useMemo(() => buildSteps(all, plan, household, showEmployer), [all, plan, household, showEmployer])
   const rows = useMemo(() => chartRows(all, showEmployer), [all, showEmployer])
   const [stepId, setStepId] = useState<StepId>('cover')
@@ -47,10 +52,14 @@ export function YearExplorer({ all, plan, household, showEmployer, highlight }: 
   const us = rows.find((r) => r.id === 'US')!
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">How the year can go</h2>
-        <p className="text-sm text-muted-foreground">Everyone pays to be covered. Then the year deals a hand. Pick one.</p>
+    <div className="space-y-3 p-4 sm:px-5 sm:pb-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 className="text-xl font-bold tracking-tight">How the year can go</h2>
+        <p className="text-sm text-muted-foreground">
+          <FlashValue value={householdLabel} inputsKey={inputsKey}>
+            For {householdLabel}
+          </FlashValue>
+        </p>
       </div>
 
       <TabsPrimitive.Root value={stepId} onValueChange={(v) => setStepId(v as StepId)}>
@@ -67,7 +76,9 @@ export function YearExplorer({ all, plan, household, showEmployer, highlight }: 
               </span>
               <span className="font-display text-xs font-bold tabular-nums sm:text-sm">
                 <span className="hidden font-sans font-normal sm:inline">US </span>
-                {usd(totalFor(us, s.scenario))}
+                <FlashValue value={totalFor(us, s.scenario)} inputsKey={inputsKey}>
+                  {usd(totalFor(us, s.scenario))}
+                </FlashValue>
               </span>
             </TabsPrimitive.Trigger>
           ))}
@@ -75,38 +86,45 @@ export function YearExplorer({ all, plan, household, showEmployer, highlight }: 
 
         <TabsPrimitive.Content
           value={stepId}
-          className="relative space-y-5 rounded-xl border border-foreground/10 bg-card p-5 outline-none sm:p-6"
+          className="relative grid gap-5 rounded-xl border border-foreground/10 bg-card p-4 outline-none sm:p-5 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-6"
         >
-          <div className="max-w-3xl space-y-1.5">
-            <h3 className="text-xl font-bold">{step.title}</h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+          <div className="min-w-0 space-y-3">
+            <div className="max-w-3xl space-y-1">
+              <h3 className="text-lg font-bold">{step.title}</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            </div>
+            <StoryChart
+              all={all}
+              showEmployer={showEmployer}
+              scenario={step.scenario}
+              caption={CAPTIONS[step.id]}
+              highlight={highlight}
+              inputsKey={inputsKey}
+            />
           </div>
 
-          <StoryChart all={all} showEmployer={showEmployer} scenario={step.scenario} caption={CAPTIONS[step.id]} highlight={highlight} />
-
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {step.callouts.map((c) => (
-              <li key={c.country + c.text} className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">
-                <strong className="inline-flex items-center gap-1.5 font-display text-foreground">
-                  <Flag country={c.country} className="h-3" />
-                  {COUNTRIES[c.country].name}.
-                </strong>{' '}
-                {c.text}
-              </li>
-            ))}
-          </ul>
-
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-xl text-xs text-muted-foreground">
+          <aside className="space-y-3">
+            <ul className="space-y-2">
+              {step.callouts.map((c) => (
+                <li key={c.country + c.text} className="rounded-lg bg-muted/60 p-3 text-sm text-muted-foreground">
+                  <strong className="inline-flex items-center gap-1.5 font-display text-foreground">
+                    <Flag country={c.country} className="h-3" />
+                    {COUNTRIES[c.country].name}.
+                  </strong>{' '}
+                  {c.text}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
               The UK and Canada have no premiums, so their figures estimate the share of your taxes that pays for health care.
               The other countries' figures leave out the taxes that fund their public programs.
             </p>
             {next && (
-              <Button variant="outline" onClick={() => setStepId(next.id)}>
+              <Button variant="outline" size="sm" onClick={() => setStepId(next.id)}>
                 Next: {TAB_LABELS[next.id].full.toLowerCase()} →
               </Button>
             )}
-          </div>
+          </aside>
         </TabsPrimitive.Content>
       </TabsPrimitive.Root>
     </div>
